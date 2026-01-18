@@ -1,0 +1,47 @@
+version: '3.2'
+
+services:
+  nginx:
+    build:
+      context: environments/nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/app:cached
+    links:
+      - php
+
+  php:
+    restart: always
+    build:
+      context: environments/php
+    ports:
+      - "9098:9000"
+    volumes:
+      - ./:/var/www/app:cached
+
+#  backend:
+#    build: backend
+#    ports:
+#      - 21080:80
+#    volumes:
+#      # Re-use local composer cache via host-volume
+#      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+#      # Mount source-code for development
+#      - ./:/app
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=verysecret
+      - MYSQL_DATABASE=book_catalog
+      - MYSQL_USER=book_admin
+      - MYSQL_PASSWORD=secret
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./environments/mysql_data:/var/lib/mysql
+
